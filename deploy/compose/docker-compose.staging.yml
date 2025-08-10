@@ -1,0 +1,122 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:6.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo-data-staging:/data/db
+    networks:
+      - penpal
+
+  db-service:
+    image: ghcr.io/${GHCR_OWNER}/penpal-ai-db-service:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      MONGODB_URI: ${MONGODB_URI}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    depends_on:
+      - mongodb
+    networks:
+      - penpal
+
+  auth-service:
+    image: ghcr.io/${GHCR_OWNER}/penpal-ai-auth-service:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DB_SERVICE_URL: http://db-service:3001
+      SERVICE_API_KEY: ${SERVICE_API_KEY}
+    depends_on:
+      - db-service
+    networks:
+      - penpal
+
+  ai-service:
+    image: ghcr.io/${GHCR_OWNER}/penpal-ai-asimov-service:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      DB_SERVICE_URL: http://db-service:3001/api/v1
+      DB_SERVICE_API_KEY: ${DB_SERVICE_API_KEY}
+    depends_on:
+      - db-service
+    networks:
+      - penpal
+
+  payment-service:
+    image: ghcr.io/${GHCR_OWNER}/payment-service:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      AUTH_SERVICE_URL: http://auth-service:3002
+      DB_SERVICE_URL: http://db-service:3001
+      SERVICE_API_KEY: ${SERVICE_API_KEY}
+      DB_SERVICE_API_KEY: ${DB_SERVICE_API_KEY}
+    depends_on:
+      - auth-service
+      - db-service
+    networks:
+      - penpal
+
+  monitoring-service:
+    image: ghcr.io/${GHCR_OWNER}/penpal-ai-monitoring-service:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      AUTH_SERVICE_URL: http://auth-service:3002
+      DB_SERVICE_URL: http://db-service:3001
+      AI_SERVICE_URL: http://ai-service:3003
+    depends_on:
+      - auth-service
+      - db-service
+      - ai-service
+    networks:
+      - penpal
+
+  notify-service:
+    image: ghcr.io/${GHCR_OWNER}/penpal-ai-notify-service:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      NOTIFY_SERVICE_API_KEY: ${NOTIFY_SERVICE_API_KEY}
+    networks:
+      - penpal
+
+  frontend:
+    image: ghcr.io/${GHCR_OWNER}/penpal-frontend:develop-latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_AUTH_SERVICE_URL: http://auth-service:3002/api/v1
+      NEXT_PUBLIC_PAYMENT_API_URL: http://payment-service:3004/api/v1
+      NEXT_PUBLIC_AI_SERVICE_URL: http://ai-service:3003/api/v1
+      NEXT_PUBLIC_MONITORING_API_URL: http://monitoring-service:3005
+    depends_on:
+      - auth-service
+      - payment-service
+      - ai-service
+      - monitoring-service
+    networks:
+      - penpal
+
+volumes:
+  mongo-data-staging:
+
+networks:
+  penpal:
+    driver: bridge
+
+
