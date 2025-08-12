@@ -88,22 +88,6 @@ services:
     networks:
       - penpal-staging-net
 
-  frontend:
-    image: ghcr.io/${GHCR_OWNER}/penpal-frontend:develop-latest
-    restart: unless-stopped
-    container_name: frontend
-    env_file:
-     - .env
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-    depends_on:
-      - auth-service
-      - payment-service
-      - ai-service
-      - monitoring-service
-    networks:
-      - penpal-staging-net
 
 networks:
   penpal-staging-net:
