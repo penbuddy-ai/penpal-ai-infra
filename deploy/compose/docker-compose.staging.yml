@@ -26,6 +26,8 @@ services:
       - db-service
     networks:
       - penpal-staging-net
+    ports:
+      - "3002:3002"
 
   ai-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-asimov-service:develop-latest
@@ -55,6 +57,8 @@ services:
       - db-service
     networks:
       - penpal-staging-net
+    ports:
+      - "3004:3004"
 
   monitoring-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-monitoring-service:develop-latest
@@ -100,6 +104,8 @@ services:
       - monitoring-service
     networks:
       - penpal-staging-net
+    ports:
+      - "3000:3000"
 
 networks:
   penpal-staging-net:
