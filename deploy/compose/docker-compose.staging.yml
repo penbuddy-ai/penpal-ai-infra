@@ -12,6 +12,8 @@ services:
       PORT: 3001
     networks:
       - penpal-staging-net
+    ports:
+      - "3001:3001"
 
   auth-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-auth-service:develop-latest
@@ -42,6 +44,8 @@ services:
       - db-service
     networks:
       - penpal-staging-net
+    ports:
+      - "3003:3003"
 
   payment-service:
     image: ghcr.io/${GHCR_OWNER}/payment-service:develop-latest
@@ -75,6 +79,8 @@ services:
       - ai-service
     networks:
       - penpal-staging-net
+    ports:
+      - "3005:3005"
 
   notify-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-notify-service:develop-latest
@@ -87,7 +93,8 @@ services:
       PORT: 3006
     networks:
       - penpal-staging-net
-
+    ports:
+      - "3006:3006"
 
 networks:
   penpal-staging-net:
