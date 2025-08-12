@@ -10,7 +10,7 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
   auth-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-auth-service:develop-latest
@@ -23,7 +23,7 @@ services:
     depends_on:
       - db-service
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
   ai-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-asimov-service:develop-latest
@@ -36,7 +36,7 @@ services:
     depends_on:
       - db-service
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
   payment-service:
     image: ghcr.io/${GHCR_OWNER}/payment-service:develop-latest
@@ -52,7 +52,7 @@ services:
       - auth-service
       - db-service
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
   monitoring-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-monitoring-service:develop-latest
@@ -68,7 +68,7 @@ services:
       - db-service
       - ai-service
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
   notify-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-notify-service:develop-latest
@@ -78,7 +78,7 @@ services:
       PORT: 3006
       NOTIFY_SERVICE_API_KEY: ${NOTIFY_SERVICE_API_KEY}
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
   frontend:
     image: ghcr.io/${GHCR_OWNER}/penpal-frontend:develop-latest
@@ -92,13 +92,13 @@ services:
       - ai-service
       - monitoring-service
     networks:
-      - penpal-network-staging
+      - penpal-staging-net
 
 volumes:
   mongo-data-staging:
 
 networks:
-  penpal-network-staging:
+  penpal-staging-net:
     driver: bridge
 
 
