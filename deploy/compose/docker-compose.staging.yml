@@ -86,10 +86,6 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      NEXT_PUBLIC_AUTH_SERVICE_URL: http://auth-service:3002/api/v1
-      NEXT_PUBLIC_PAYMENT_API_URL: http://payment-service:3004/api/v1
-      NEXT_PUBLIC_AI_SERVICE_URL: http://ai-service:3003/api/v1
-      NEXT_PUBLIC_MONITORING_API_URL: http://monitoring-service:3005
     depends_on:
       - auth-service
       - payment-service
