@@ -1,30 +1,16 @@
 version: "3.9"
 
 services:
-  mongodb:
-    image: mongo:6.0
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    volumes:
-      - mongo-data-staging:/data/db
-    networks:
-      - penpal
-
   db-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-db-service:develop-latest
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3001
       MONGODB_URI: ${MONGODB_URI}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY}
-    depends_on:
-      - mongodb
     networks:
-      - penpal
+      - penpal-network-staging
 
   auth-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-auth-service:develop-latest
@@ -37,7 +23,7 @@ services:
     depends_on:
       - db-service
     networks:
-      - penpal
+      - penpal-network-staging
 
   ai-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-asimov-service:develop-latest
@@ -50,7 +36,7 @@ services:
     depends_on:
       - db-service
     networks:
-      - penpal
+      - penpal-network-staging
 
   payment-service:
     image: ghcr.io/${GHCR_OWNER}/payment-service:develop-latest
@@ -66,7 +52,7 @@ services:
       - auth-service
       - db-service
     networks:
-      - penpal
+      - penpal-network-staging
 
   monitoring-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-monitoring-service:develop-latest
@@ -82,7 +68,7 @@ services:
       - db-service
       - ai-service
     networks:
-      - penpal
+      - penpal-network-staging
 
   notify-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-notify-service:develop-latest
@@ -92,7 +78,7 @@ services:
       PORT: 3006
       NOTIFY_SERVICE_API_KEY: ${NOTIFY_SERVICE_API_KEY}
     networks:
-      - penpal
+      - penpal-network-staging
 
   frontend:
     image: ghcr.io/${GHCR_OWNER}/penpal-frontend:develop-latest
@@ -110,13 +96,13 @@ services:
       - ai-service
       - monitoring-service
     networks:
-      - penpal
+      - penpal-network-staging
 
 volumes:
   mongo-data-staging:
 
 networks:
-  penpal:
+  penpal-network-staging:
     driver: bridge
 
 
