@@ -4,22 +4,24 @@ services:
   db-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-db-service:develop-latest
     restart: unless-stopped
+    container_name: db-service
+    env_file:
+     - .env
     environment:
       NODE_ENV: development
       PORT: 3001
-      MONGODB_URI: ${MONGODB_URI}
-      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
     networks:
       - penpal-staging-net
 
   auth-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-auth-service:develop-latest
     restart: unless-stopped
+    container_name: auth-service
+    env_file:
+     - .env
     environment:
       NODE_ENV: production
       PORT: 3002
-      DB_SERVICE_URL: http://db-service:3001
-      SERVICE_API_KEY: ${SERVICE_API_KEY}
     depends_on:
       - db-service
     networks:
@@ -28,11 +30,12 @@ services:
   ai-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-asimov-service:develop-latest
     restart: unless-stopped
+    container_name: asimov-service
+    env_file:
+     - .env
     environment:
       NODE_ENV: production
       PORT: 3003
-      DB_SERVICE_URL: http://db-service:3001/api/v1
-      DB_SERVICE_API_KEY: ${DB_SERVICE_API_KEY}
     depends_on:
       - db-service
     networks:
@@ -41,13 +44,12 @@ services:
   payment-service:
     image: ghcr.io/${GHCR_OWNER}/payment-service:develop-latest
     restart: unless-stopped
+    container_name: payment-service
+    env_file:
+     - .env
     environment:
       NODE_ENV: production
       PORT: 3004
-      AUTH_SERVICE_URL: http://auth-service:3002
-      DB_SERVICE_URL: http://db-service:3001
-      SERVICE_API_KEY: ${SERVICE_API_KEY}
-      DB_SERVICE_API_KEY: ${DB_SERVICE_API_KEY}
     depends_on:
       - auth-service
       - db-service
@@ -57,12 +59,12 @@ services:
   monitoring-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-monitoring-service:develop-latest
     restart: unless-stopped
+    container_name: monitoring-service
+    env_file:
+     - .env
     environment:
       NODE_ENV: production
       PORT: 3005
-      AUTH_SERVICE_URL: http://auth-service:3002
-      DB_SERVICE_URL: http://db-service:3001
-      AI_SERVICE_URL: http://ai-service:3003
     depends_on:
       - auth-service
       - db-service
@@ -73,16 +75,21 @@ services:
   notify-service:
     image: ghcr.io/${GHCR_OWNER}/penpal-ai-notify-service:develop-latest
     restart: unless-stopped
+    container_name: notify-service
+    env_file:
+     - .env
     environment:
       NODE_ENV: production
       PORT: 3006
-      NOTIFY_SERVICE_API_KEY: ${NOTIFY_SERVICE_API_KEY}
     networks:
       - penpal-staging-net
 
   frontend:
     image: ghcr.io/${GHCR_OWNER}/penpal-frontend:develop-latest
     restart: unless-stopped
+    container_name: frontend
+    env_file:
+     - .env
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -93,9 +100,6 @@ services:
       - monitoring-service
     networks:
       - penpal-staging-net
-
-volumes:
-  mongo-data-staging:
 
 networks:
   penpal-staging-net:
