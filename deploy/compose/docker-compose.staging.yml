@@ -104,8 +104,6 @@ services:
       - monitoring-service
     networks:
       - penpal-staging-net
-    ports:
-      - "3000:3000"
 
 networks:
   penpal-staging-net:
